@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>EducaFlex — Registrar</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header mb-3">
+      <div class="logo">EducaFlex</div>
+      <div><a href="index.html" class="btn btn-outline-secondary">Voltar ao Login</a></div>
+    </div>
+
+    <h2>Criar Conta</h2>
+    <div class="card p-3">
+      <div id="msg" class="small text-danger mb-2"></div>
+      <label class="form-label">Nome</label>
+      <input id="name" type="text" class="form-control mb-2">
+      <label class="form-label">Email</label>
+      <input id="email" type="email" class="form-control mb-2">
+      <label class="form-label">Senha</label>
+      <input id="password" type="password" class="form-control mb-2">
+      <label class="form-label">Confirmar Senha</label>
+      <input id="password2" type="password" class="form-control mb-2">
+      <div class="mt-2">
+        <button id="btnRegister" class="btn btn-primary">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const base = '/educaflex/backend';
+document.getElementById('btnRegister').addEventListener('click', async () => {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const password2 = document.getElementById('password2').value;
+  const msg = document.getElementById('msg');
+  msg.textContent = '';
+  if (!name || !email || !password) { msg.textContent = 'Preencha todos os campos.'; return; }
+  if (password !== password2) { msg.textContent = 'Senhas não conferem.'; return; }
+  try {
+    const res = await fetch(base + '/auth/register.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name,email,password})
+    });
+    const data = await res.json();
+    if (data.success) {
+      msg.classList.remove('text-danger');
+      msg.classList.add('text-success');
+      msg.textContent = 'Cadastro realizado com sucesso! Redirecionando para login...';
+      setTimeout(()=>window.location.href='index.html',1200);
+    } else {
+      msg.textContent = data.error || 'Erro ao registrar';
+    }
+  } catch (e) {
+    msg.textContent = 'Erro de conexão';
+  }
+});
+</script>
+</body>
+</html>
