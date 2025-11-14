@@ -15,14 +15,15 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from app.db.base import Base
 
 class Quiz(Base):
-    __tablename__ = "quizzes"
-    __table_args__ = {"schema": "quizzes"}
+    __tablename__ = "quiz"
+    __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     module_id: Mapped[int] = mapped_column(
-        ForeignKey("learning.modules.id", ondelete="CASCADE")
+        ForeignKey("learn.module.id", ondelete="CASCADE")
     )
     title: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -35,12 +36,12 @@ class Quiz(Base):
 
 
 class Question(Base):
-    __tablename__ = "questions"
-    __table_args__ = {"schema": "quizzes"}
+    __tablename__ = "question"
+    __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     quiz_id: Mapped[int] = mapped_column(
-        ForeignKey("quizzes.quizzes.id", ondelete="CASCADE")
+        ForeignKey("quiz.quiz.id", ondelete="CASCADE")
     )
     statement: Mapped[str] = mapped_column(Text)
     points: Mapped[int] = mapped_column(Integer, default=1)
@@ -50,12 +51,12 @@ class Question(Base):
 
 
 class Choice(Base):
-    __tablename__ = "choices"
-    __table_args__ = {"schema": "quizzes"}
+    __tablename__ = "choice"
+    __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     question_id: Mapped[int] = mapped_column(
-        ForeignKey("quizzes.questions.id", ondelete="CASCADE")
+        ForeignKey("quiz.question.id", ondelete="CASCADE")
     )
     text: Mapped[str] = mapped_column(Text)
     is_correct: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -64,15 +65,15 @@ class Choice(Base):
 
 
 class Attempt(Base):
-    __tablename__ = "attempts"
-    __table_args__ = {"schema": "quizzes"}
+    __tablename__ = "attempt"
+    __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("auth.users.id", ondelete="CASCADE")
+        ForeignKey("auth.user.id", ondelete="CASCADE")
     )
     quiz_id: Mapped[int] = mapped_column(
-        ForeignKey("quizzes.quizzes.id", ondelete="CASCADE")
+        ForeignKey("quiz.quiz.id", ondelete="CASCADE")
     )
     score: Mapped[int] = mapped_column(Integer, default=0)
     started_at: Mapped[datetime] = mapped_column(

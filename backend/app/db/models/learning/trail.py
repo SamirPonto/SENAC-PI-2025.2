@@ -12,10 +12,11 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from app.db.base import Base
 
 class Trail(Base):
-    __tablename__ = "trails"
-    __table_args__ = {"schema": "learning"}
+    __tablename__ = "trail"
+    __table_args__ = {"schema": "learn"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200))

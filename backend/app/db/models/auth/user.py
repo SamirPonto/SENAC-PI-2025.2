@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from enum import Enum
-from sqlalchemy import DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, String, TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 class UserRole(Enum):

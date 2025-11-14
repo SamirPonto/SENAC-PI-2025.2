@@ -15,6 +15,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from app.db.base import Base
 
 
 class Progress(Base):
@@ -23,7 +24,7 @@ class Progress(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("auth.users.id", ondelete="CASCADE")
+        ForeignKey("auth.user.id", ondelete="CASCADE")
     )
     module_id: Mapped[int] = mapped_column(
         ForeignKey("learning.modules.id", ondelete="CASCADE")

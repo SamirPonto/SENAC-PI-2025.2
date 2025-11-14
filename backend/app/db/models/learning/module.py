@@ -1,4 +1,5 @@
 from datetime import datetime, UTC
+from typing import Optional
 
 from sqlalchemy import (
     String,
@@ -14,13 +15,15 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from app.db.base import Base
+
 class Module(Base):
-    __tablename__ = "modules"
-    __table_args__ = {"schema": "learning"}
+    __tablename__ = "module"
+    __table_args__ = {"schema": "learn"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     trail_id: Mapped[int] = mapped_column(
-        ForeignKey("learning.trails.id", ondelete="CASCADE")
+        ForeignKey("learn.trail.id", ondelete="CASCADE")
     )
     title: Mapped[str] = mapped_column(String(200))
     type: Mapped[str] = mapped_column(String(20), default="video")
