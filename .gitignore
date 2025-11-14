@@ -1,0 +1,8 @@
+*pyc
+__pycache__/
+*.csv
+*.pdf
+.env
+.python-version
+.ruff_cache
+.venv

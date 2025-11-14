@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydatabase
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - /var/lib/postgresql/data   # anonymous volume, not persisted
     ports:
       - "5432:5432"
 
