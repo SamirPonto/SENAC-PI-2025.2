@@ -7,12 +7,12 @@ from sqlalchemy import (
     TIMESTAMP,
 )
 from sqlalchemy.orm import (
-    DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
 )
 from app.db.base import Base
+
 
 class Trail(Base):
     __tablename__ = "trail"
