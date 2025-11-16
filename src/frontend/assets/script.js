@@ -125,57 +125,82 @@ async function getTrails(userId) {
 // 5. Lógica para Detalhes da Trilha e Módulos (Passo 4a - NOVO CÓDIGO)
 // ====================================================================
 async function getTrailDetails(trailId, userId) {
-    const moduleListElement = document.getElementById('moduleList');
-    const titleElement = document.getElementById('trailTitle');
-    
-    if (!moduleListElement) return;
+    const moduleListElement = document.getElementById('moduleList');
+    const titleElement = document.getElementById('trailTitle');
+    
+    if (!moduleListElement) return;
 
-    moduleListElement.innerHTML = '<p>Buscando detalhes da trilha e módulos...</p>';
-    titleElement.textContent = 'Carregando...';
+    moduleListElement.innerHTML = '<p>Buscando detalhes da trilha e módulos...</p>';
+    titleElement.textContent = 'Carregando...';
 
-    // Chamada da API GET api/get_trail_details.php
-    const endpoint = `api/get_trail_details.php?trail_id=${trailId}&user_id=${userId}`;
-    const result = await apiFetch(endpoint, 'GET');
-    
-    const trail = result.trail;
+    // Chamada da API GET api/get_trail_details.php
+    const endpoint = `api/get_trail_details.php?trail_id=${trailId}&user_id=${userId}`;
+    const result = await apiFetch(endpoint, 'GET');
+    
+    const trail = result.trail;
 
-    // Verifica se a trilha e os módulos existem
-    if (trail && trail.modules && Array.isArray(trail.modules)) {
-        titleElement.textContent = `Trilha: ${trail.title}`; 
-        
-        const descElement = document.getElementById('trailDescription');
-        if (descElement) {
-            descElement.textContent = trail.description; 
-        }
+    // Verifica se a trilha e os módulos existem
+    if (trail && trail.modules && Array.isArray(trail.modules)) {
+        titleElement.textContent = `Trilha: ${trail.title}`; 
+        
+        const descElement = document.getElementById('trailDescription');
+        if (descElement) {
+            descElement.textContent = trail.description; 
+        }
 
-        // Renderiza a lista de módulos
-        moduleListElement.innerHTML = trail.modules.map(module => `
-            <div class="card p-3 mb-2">
-                <h5>${module.title}</h5>
-                <p class="small">${module.description}</p>
-                <p>Status: <b class="${module.is_completed ? 'text-success' : 'text-danger'}">${module.is_completed ? 'Concluído' : 'Pendente'}</b></p>
-                <p class="small text-muted">Tipo: ${module.type}</p>
-                
-                <button class="btn btn-sm btn-outline-primary mt-1" onclick="alert('Abrir o recurso para ${module.title}')">Abrir Módulo</button>
-                
-                ${!module.is_completed ? 
-                    `<button class="btn btn-sm btn-success mt-1" onclick="updateProgress(${module.id}, ${userId})">Marcar como Concluído</button>`
-                    : ''
-                }
-            </div>
-        `).join('');
-    } else {
-        titleElement.textContent = 'Trilha Não Encontrada';
-        moduleListElement.innerHTML = '<p class="text-danger">Erro ao carregar trilha. Verifique o backend (get_trail_details.php) e os dados de teste.</p>';
-    }
+        // Renderiza a lista de módulos
+        moduleListElement.innerHTML = trail.modules.map(module => `
+            <div class="card p-3 mb-2">
+                <h5>${module.title}</h5>
+                <p class="small">${module.description}</p>
+                <p>Status: <b class="${module.is_completed ? 'text-success' : 'text-danger'}">${module.is_completed ? 'Concluído' : 'Pendente'}</b></p>
+                <p class="small text-muted">Tipo: ${module.type}</p>
+                
+                <button class="btn btn-sm btn-outline-primary mt-1" onclick="alert('Abrir o recurso para ${module.title}')">Abrir Módulo</button>
+                
+                ${!module.is_completed ? 
+                    `<button class="btn btn-sm btn-success mt-1" onclick="updateProgress(${module.id}, ${userId})">Marcar como Concluído</button>`
+                    : ''
+                }
+            </div>
+        `).join('');
+    } else {
+        titleElement.textContent = 'Trilha Não Encontrada';
+        moduleListElement.innerHTML = '<p class="text-danger">Erro ao carregar trilha. Verifique o backend (get_trail_details.php) e os dados de teste.</p>';
+    }
 }
 
 
 // ====================================================================
-// 6. Lógica para Atualizar Progresso (Passo 4b - Placeholder)
+// 6. Lógica para Atualizar Progresso (Passo 4b - Implementação Real)
 // ====================================================================
-// Esta função é chamada pela tela trail.html e será implementada na próxima etapa
-function updateProgress(moduleId, userId) {
-    alert(`Preparando para marcar o módulo ${moduleId} como concluído para o usuário ${userId}. Implementação do Passo 4b virá aqui.`);
-    // A implementação real faria uma chamada POST para api/update_progress.php
+async function updateProgress(moduleId, userId) {
+    if (!confirm("Tem certeza que deseja marcar este módulo como concluído?")) {
+        return; // Usuário cancelou
+    }
+
+    const data = {
+        module_id: moduleId,
+        user_id: userId,
+        percentage: 100 // Hardcode para 100%
+    };
+
+    console.log(`Tentando atualizar progresso do módulo ${moduleId}...`);
+
+    // Chamada da API POST api/update_progress.php
+    const result = await apiFetch('api/update_progress.php', 'POST', data);
+    
+    if (result.success) {
+        alert("Progresso atualizado com sucesso!");
+        
+        // Após o sucesso, recarregar os detalhes da trilha para atualizar o estado da tela
+        const urlParams = new URLSearchParams(window.location.search);
+        const trailId = urlParams.get('trail_id');
+
+        if (trailId) {
+            getTrailDetails(trailId, userId); // Reuso da função 5.
+        }
+    } else {
+        alert(`Erro ao atualizar progresso: ${result.error || result.message || 'Erro desconhecido.'}`);
+    }
 }
