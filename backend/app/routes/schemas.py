@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
-from enum import Enum
+
+from app.db.models.auth.user import UserRole
 
 
 class Module(BaseModel):
@@ -28,21 +29,15 @@ class Trail(BaseModel):
     modules_count: int = Field(ge=0, default=0)
 
 
-class UserRoleEnum(str, Enum):
-    admin = "admin"
-    teacher = "teacher"
-    student = "student"
-
-
 class RegisterUser(BaseModel):
     name: str = Field(..., min_length=2)
     email: EmailStr
     password: str = Field(..., min_length=6)
-    role: UserRoleEnum = UserRoleEnum.student  # default student
+    role: UserRole
 
 
 class UserPublic(BaseModel):
     id: int
     name: str
     email: EmailStr
-    role: UserRoleEnum
+    role: UserRole
