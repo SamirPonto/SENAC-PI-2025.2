@@ -1,43 +1,41 @@
 # app/routers/trails.py
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from app.routes.schemas import Trail, Module, Progress
+from sqlalchemy.orm import Session
+from app.db.models import Trail
+from app.db.session import get_db
+from app.db.models import Module
+from app.routes.schemas import Trail as TrailRouter
 
 router = APIRouter(prefix="/trails")
 
 
-@router.get("")
-async def get_trails(
-    user_id: int | None = Depends(get_current_user),
-    db: AsyncSession = Depends(get_session),
+@router.get("/")
+def get_trails(
+    db: Session = Depends(get_db),
 ):
-    stmt = select(Trail)
-    trails = (await db.scalars(stmt)).all()
-
-    result = []
-
-    for t in trails:
-        # modules count
-        stmt1 = select(func.count()).where(Module.trail_id == t.id)
-        modules_count = await db.scalar(stmt1)
-
-        # progress
-        stmt2 = (
-            select(func.avg(Progress.percentage))
-            .join(Module, Progress.module_id == Module.id)
-            .where(Module.trail_id == t.id, Progress.user_id == user_id)
+    stmt = (
+        select(
+            Trail.id,
+            Trail.title,
+            Trail.description,
+            func.count(Module.id).label("modules_count"),
         )
-        avg = await db.scalar(stmt2)
+        .outerjoin(Module, Module.trail_id == Trail.id)
+        .group_by(Trail.id)
+        .order_by(Trail.id)
+    )
 
-        result.append(
-            TrailOut(
-                id=t.id,
-                title=t.title,
-                description=t.description,
-                modules_count=modules_count,
-                progress=round(avg) if avg else 0,
+    rows = db.execute(stmt).all()
+
+    return {
+        "trails": [
+            TrailRouter(
+                id=row.id,
+                title=row.title,
+                description=row.description,
+                modules_count=row.modules_count,
             )
-        )
-
-    return {"trails": result}
+            for row in rows
+        ]
+    }

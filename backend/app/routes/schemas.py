@@ -1,5 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
+from enum import Enum
 
 
 class Module(BaseModel):
@@ -12,16 +13,36 @@ class Module(BaseModel):
     content_url: str | None = None
 
 
-class Progress:
+class Progress(BaseModel):
     id: int
     user_id: int
     module_id: int
-    percentage: int
+    percentage: int = Field(ge=0, le=100)
     updated_at: datetime
 
 
 class Trail(BaseModel):
     id: int
     title: str
-    description: str
-    created_at: datetime
+    description: str | None
+    modules_count: int = Field(ge=0, default=0)
+
+
+class UserRoleEnum(str, Enum):
+    admin = "admin"
+    teacher = "teacher"
+    student = "student"
+
+
+class RegisterUser(BaseModel):
+    name: str = Field(..., min_length=2)
+    email: EmailStr
+    password: str = Field(..., min_length=6)
+    role: UserRoleEnum = UserRoleEnum.student  # default student
+
+
+class UserPublic(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    role: UserRoleEnum

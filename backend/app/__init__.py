@@ -1,12 +1,26 @@
+# app/__init__.py
 from fastapi import FastAPI
 
-from app.routes.update_progress import router as uprogress_router
-from app.routes.trails.get import router as trail_router
-from app.routes.trails.modules import router as module_router
-from app.routes.trails.user_progress import router as user_router
+from app.routes.update_progress import router as update_progress_router
+from app.routes.trails.get import router as trails_router
+from app.routes.trails.modules import router as modules_router
+from app.routes.trails.user_progress import router as user_progress_router
+from app.routes.auth import router as auth_router
 
-app = FastAPI()
-app.include_router(uprogress_router, prefix="v1")
-app.include_router(trail_router, prefix="v1")
-app.include_router(module_router, prefix="v1")
-app.include_router(user_router, prefix="v1")
+
+def create_app() -> FastAPI:
+    app = FastAPI(title="Educaflex API", version="1.0.0")
+
+    # API v1 prefix
+    API_PREFIX = "/v1"
+
+    app.include_router(update_progress_router, prefix=API_PREFIX, tags=["progress"])
+    app.include_router(trails_router, prefix=API_PREFIX, tags=["trails"])
+    app.include_router(modules_router, prefix=API_PREFIX, tags=["modules"])
+    app.include_router(user_progress_router, prefix=API_PREFIX, tags=["user_progress"])
+    app.include_router(auth_router, prefix="/v1", tags=["auth"])
+
+    return app
+
+
+app = create_app()
