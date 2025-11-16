@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, UTC
 from typing import Optional
 
@@ -17,6 +18,7 @@ from sqlalchemy.orm import (
 
 from app.db.base import Base
 
+
 class Module(Base):
     __tablename__ = "module"
     __table_args__ = {"schema": "learn"}
@@ -34,9 +36,8 @@ class Module(Base):
     )
 
     # relationships
-    trail: Mapped["Trail"] = relationship(back_populates="modules")
-    progress: Mapped[List["Progress"]] = relationship(back_populates="module")
-    quiz: Mapped[Optional["Quiz"]] = relationship(
-        back_populates="module",
-        uselist=False
-    )
+    # trail: Mapped["Trail"] = relationship(back_populates="modules")
+    # progress: Mapped[List["Progress"]] = relationship(back_populates="module")
+    # quiz: Mapped[Optional["Quiz"]] = relationship(
+    #    back_populates="module", uselist=False
+    # )

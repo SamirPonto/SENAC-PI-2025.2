@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, UTC
 from typing import Optional
 
@@ -17,6 +18,7 @@ from sqlalchemy.orm import (
 )
 from app.db.base import Base
 
+
 class Quiz(Base):
     __tablename__ = "quiz"
     __table_args__ = {"schema": "quiz"}
@@ -30,9 +32,9 @@ class Quiz(Base):
         TIMESTAMP, default=datetime.now(tz=UTC)
     )
 
-    module: Mapped["Module"] = relationship(back_populates="quiz")
-    questions: Mapped[list["Question"]] = relationship(back_populates="quiz")
-    attempts: Mapped[list["Attempt"]] = relationship(back_populates="quiz")
+    # module: Mapped["Module"] = relationship(back_populates="quiz")
+    # questions: Mapped[list["Question"]] = relationship(back_populates="quiz")
+    # attempts: Mapped[list["Attempt"]] = relationship(back_populates="quiz")
 
 
 class Question(Base):
@@ -40,14 +42,12 @@ class Question(Base):
     __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    quiz_id: Mapped[int] = mapped_column(
-        ForeignKey("quiz.quiz.id", ondelete="CASCADE")
-    )
+    quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.quiz.id", ondelete="CASCADE"))
     statement: Mapped[str] = mapped_column(Text)
     points: Mapped[int] = mapped_column(Integer, default=1)
 
-    quiz: Mapped["Quiz"] = relationship(back_populates="questions")
-    choices: Mapped[list["Choice"]] = relationship(back_populates="question")
+    # quiz: Mapped["Quiz"] = relationship(back_populates="questions")
+    # choices: Mapped[list["Choice"]] = relationship(back_populates="question")
 
 
 class Choice(Base):
@@ -61,7 +61,7 @@ class Choice(Base):
     text: Mapped[str] = mapped_column(Text)
     is_correct: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    question: Mapped["Question"] = relationship(back_populates="choices")
+    # question: Mapped["Question"] = relationship(back_populates="choices")
 
 
 class Attempt(Base):
@@ -69,18 +69,13 @@ class Attempt(Base):
     __table_args__ = {"schema": "quiz"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("auth.user.id", ondelete="CASCADE")
-    )
-    quiz_id: Mapped[int] = mapped_column(
-        ForeignKey("quiz.quiz.id", ondelete="CASCADE")
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("auth.user.id", ondelete="CASCADE"))
+    quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.quiz.id", ondelete="CASCADE"))
     score: Mapped[int] = mapped_column(Integer, default=0)
     started_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, default=datetime.now(tz=UTC)
     )
     finished_at: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP, nullable=True)
 
-    user: Mapped["User"] = relationship(back_populates="attempts")
-    quiz: Mapped["Quiz"] = relationship(back_populates="attempts")
-
+    # user: Mapped["User"] = relationship("User", back_populates="attempts")
+    # quiz: Mapped["Quiz"] = relationship("Quiz", back_populates="attempts")

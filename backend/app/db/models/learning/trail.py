@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, UTC
 from typing import List, Optional
 
@@ -25,4 +26,4 @@ class Trail(Base):
         TIMESTAMP, default=datetime.now(tz=UTC)
     )
 
-    modules: Mapped[List["Module"]] = relationship(back_populates="trail")
+    # modules: Mapped[List["Module"]] = relationship(back_populates="trail")

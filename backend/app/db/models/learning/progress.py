@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import (
@@ -25,5 +26,5 @@ class Progress(Base):
     percentage: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
 
-    user: Mapped["User"] = relationship(back_populates="progress")
-    module: Mapped["Module"] = relationship(back_populates="progress")
+    # user: Mapped["User"] = relationship("User", back_populates="progress")
+    # module: Mapped["Module"] = relationship("Module", back_populates="progress")
