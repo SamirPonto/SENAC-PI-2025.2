@@ -12,7 +12,7 @@
     <div class="header mb-3 d-flex align-items-center justify-content-between">
       <div class="logo">EducaFlex</div>
       <div>
-                <button id="btnLogout" class="btn btn-outline-secondary">Sair</button>
+                                <button id="logoutBtn" class="btn btn-sm btn-secondary">Sair</button>
       </div>
     </div>
 
@@ -26,19 +26,5 @@
 
 <script src="assets/script.js"></script> 
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // **IMPORTANTE**: Use o ID real de um ALUNO (Student) do seu banco de dados.
-        // Se você não tem certeza, use o '1' por enquanto, assumindo que foi o primeiro criado.
-        getTrails(1); 
-        
-        // Exemplo: Adicionando o listener de Sair/Logout de volta, que não está no script.js ainda.
-        // O ideal é adicionar esta lógica no seu script.js, dentro do DOMContentLoaded.
-        document.getElementById('btnLogout').addEventListener('click', () => {
-             // Este URL de redirecionamento precisa ser ajustado com base no seu roteamento
-             window.location.href = 'index.html'; 
-        });
-    });
-</script>
 </body>
 </html>

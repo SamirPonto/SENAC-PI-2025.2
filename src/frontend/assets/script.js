@@ -2,6 +2,7 @@
 
 // 1. URL BASE DA API (Aponta para a pasta 'backend/')
 const API_BASE_URL = 'http://localhost/educaflex-poc/src/backend/';
+const USER_ID_STORAGE_KEY = 'educaflex_user_id'; // Chave para salvar o ID do usuário
 
 // 2. FUNÇÃO GENÉRICA apiFetch (Reutilizável para todas as chamadas GET/POST)
 async function apiFetch(path, method = 'GET', data = null) {
@@ -33,64 +34,162 @@ async function apiFetch(path, method = 'GET', data = null) {
     }
 }
 
-// 3. Lógica Principal (Executada após o carregamento do HTML)
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // ====================================================================
-    // 3.1. Lógica de Cadastro (Para register.html - Passo 2)
-    // ====================================================================
-    const form = document.getElementById('cadastroForm');
-    
-    if (form) {
-        const msg = document.getElementById('msg'); // Elemento de mensagem
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // 1. Obter e Validar dados
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const password2 = document.getElementById('password2').value; 
-            const user_type = document.getElementById('user_type').value; 
-
-            msg.textContent = '';
-            if (!name || !email || !password || !password2 || !user_type) { 
-                msg.textContent = 'Preencha todos os campos.'; 
-                return; 
-            }
-            if (password !== password2) { 
-                msg.textContent = 'Senhas não conferem.'; 
-                return; 
-            }
-
-            const userData = { name, email, password, user_type };
-
-            msg.textContent = 'Cadastrando...';
-            msg.classList.remove('text-danger', 'text-success');
-            
-            // 2. CHAMADA POST CRUCIAL: auth/register.php
-            const result = await apiFetch('auth/register.php', 'POST', userData);
-
-            // 3. Tratar a Resposta
-            if (result.success) {
-                msg.classList.remove('text-danger');
-                msg.classList.add('text-success');
-                msg.textContent = 'Cadastro realizado com sucesso! Redirecionando...';
-                form.reset();
-                // Redireciona para o login (index.html) após 1.5s
-                setTimeout(() => { window.location.href = 'index.html'; }, 1500); 
-            } else {
-                msg.classList.remove('text-success');
-                msg.classList.add('text-danger');
-                msg.textContent = result.error || result.message || 'Erro ao registrar';
-            }
-        });
-    }
-});
+// ====================================================================
+// FUNÇÃO AUXILIAR: Obtém o ID do usuário logado do localStorage
+// ====================================================================
+function getUserId() {
+    return localStorage.getItem(USER_ID_STORAGE_KEY);
+}
 
 // ====================================================================
-// 4. Lógica para Listar Trilhas (Passo 3 - Implementação fora do DOMContentLoaded)
+// FUNÇÃO AUXILIAR: Remove o ID do usuário (Logout)
+// ====================================================================
+function logout() {
+    localStorage.removeItem(USER_ID_STORAGE_KEY);
+    // Redireciona para a tela de login
+    window.location.href = 'index.html'; 
+}
+
+// 3. Lógica Principal (Executada após o carregamento do HTML)
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Configura o botão Sair/Logout (se existir na página)
+    // O dashboard.html precisa ter um botão com o ID 'logoutBtn'
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+    
+    // ====================================================================
+    // 3.1. Lógica de Cadastro (Para register.html - Passo 2)
+    // ====================================================================
+    const formCadastro = document.getElementById('cadastroForm');
+    
+    if (formCadastro) {
+        const msg = document.getElementById('msg'); // Elemento de mensagem
+
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 1. Obter e Validar dados
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value; 
+            const user_type = document.getElementById('user_type').value; 
+
+            msg.textContent = '';
+            if (!name || !email || !password || !password2 || !user_type) { 
+                msg.textContent = 'Preencha todos os campos.'; 
+                return; 
+            }
+            if (password !== password2) { 
+                msg.textContent = 'Senhas não conferem.'; 
+                return; 
+            }
+
+            const userData = { name, email, password, user_type };
+
+            msg.textContent = 'Cadastrando...';
+            msg.classList.remove('text-danger', 'text-success');
+            
+            // 2. CHAMADA POST CRUCIAL: auth/register.php
+            const result = await apiFetch('auth/register.php', 'POST', userData);
+
+            // 3. Tratar a Resposta
+            if (result.success) {
+                msg.classList.remove('text-danger');
+                msg.classList.add('text-success');
+                msg.textContent = 'Cadastro realizado com sucesso! Redirecionando...';
+                formCadastro.reset();
+                // Redireciona para o login (index.html) após 1.5s
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500); 
+            } else {
+                msg.classList.remove('text-success');
+                msg.classList.add('text-danger');
+                msg.textContent = result.error || result.message || 'Erro ao registrar';
+            }
+        });
+    }
+
+    // ====================================================================
+    // 3.2. Lógica de Login (Para index.html - Implementação NOVO)
+    // ====================================================================
+    const formLogin = document.getElementById('loginForm');
+
+    if (formLogin) {
+        const msg = document.getElementById('msg');
+
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            msg.textContent = '';
+            if (!email || !password) {
+                msg.textContent = 'Preencha todos os campos.';
+                return;
+            }
+
+            const loginData = { email, password };
+            
+            msg.textContent = 'Autenticando...';
+            msg.classList.remove('text-danger', 'text-success');
+
+            // CHAMADA POST CRUCIAL: auth/login.php
+            const result = await apiFetch('auth/login.php', 'POST', loginData);
+
+            // A API de Login deve retornar {success: true, user: {id: 1, ...}}
+            if (result.success && result.user && result.user.id) {
+                // SALVA O ID DO USUÁRIO no armazenamento local
+                localStorage.setItem(USER_ID_STORAGE_KEY, result.user.id);
+                
+                msg.classList.remove('text-danger');
+                msg.classList.add('text-success');
+                msg.textContent = 'Login bem-sucedido! Redirecionando...';
+
+                // Redireciona para o dashboard
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+            } else {
+                msg.classList.remove('text-success');
+                msg.classList.add('text-danger');
+                msg.textContent = result.error || result.message || 'E-mail ou senha inválidos.';
+            }
+        });
+    }
+    
+    // ====================================================================
+    // 3.3. Lógica para Carregar Dados (Dashboard e Trail) - Agora verifica login real
+    // ====================================================================
+    const userId = getUserId();
+    const dashboardList = document.getElementById('trailsList');
+    const trailTitle = document.getElementById('trailTitle');
+
+    if (dashboardList) {
+        if (userId) {
+            getTrails(userId); // Chama as trilhas se o usuário estiver logado
+        } else {
+            // Se tentar acessar o dashboard sem login, redireciona para o login
+            window.location.href = 'index.html'; 
+        }
+    } else if (trailTitle) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const trailId = urlParams.get('trail_id');
+        
+        if (userId && trailId) {
+            getTrailDetails(trailId, userId); // Chama os detalhes da trilha
+        } else if (!userId) {
+            window.location.href = 'index.html'; // Redireciona se não estiver logado
+        } else {
+            trailTitle.textContent = 'Erro: Trilha não especificada.';
+        }
+    }
+});
+
+
+// ====================================================================
+// 4. Lógica para Listar Trilhas (Passo 3)
 // ====================================================================
 async function getTrails(userId) {
     const trailsListElement = document.getElementById('trailsList');
@@ -122,7 +221,7 @@ async function getTrails(userId) {
 
 
 // ====================================================================
-// 5. Lógica para Detalhes da Trilha e Módulos (Passo 4a - NOVO CÓDIGO)
+// 5. Lógica para Detalhes da Trilha e Módulos (Passo 4a)
 // ====================================================================
 async function getTrailDetails(trailId, userId) {
     const moduleListElement = document.getElementById('moduleList');
