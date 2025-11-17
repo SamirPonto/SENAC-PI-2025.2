@@ -42,10 +42,12 @@ function getUserId() {
 }
 
 // ====================================================================
-// FUNÇÃO AUXILIAR: Remove o ID do usuário (Logout)
+// FUNÇÃO AUXILIAR: Remove o ID e o Nome do usuário (Logout)
 // ====================================================================
 function logout() {
+    // COMENTÁRIO DE TESTE PARA O PASSO A PASSO
     localStorage.removeItem(USER_ID_STORAGE_KEY);
+    localStorage.removeItem(USER_NAME_STORAGE_KEY); // REMOVE O NOME TAMBÉM
     // Redireciona para a tela de login
     window.location.href = 'index.html'; 
 }
