@@ -24,3 +24,46 @@ Etapas de execução (caso queira visualizar)
 
 ### Frontend API
 `docker compose up frontend`
+
+
+## Fluxo de alimentação
+O banco de dados sobe limpo, então precisamos inserir os primeiros dados dentro dele.  
+No backend há o arquivo de popular com os schemas e tabelas de início.
+
+### Criando primeiro usuário
+Ao subir o banco e a api de backend, é possível acessar o swagger da api e criar o usuário teste.  
+Caso não queira fazer via swager, há a possibilidade de criar no modelo:
+```
+curl -X 'POST' \
+  'http://localhost:8000/v1/auth/register' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "user",
+  "email": "user@example.com",
+  "password": "string",
+  "role": "admin"
+}'
+```
+### Login
+A rota de login é necessária pra poder carregar o token de autenticação que deverá ser utilizado nas demais rotas.  
+Pode ser feita manualmente ou via linha de comando caso queira:
+```
+curl -X POST "http://localhost:8000/v1/auth/login" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=user4@example.com&password=string"
+```
+Dessa forma ela tem um retorno de:
+```
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyNEBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsInVpZCI6NCwiZXhwIjoxNzYzNDI5MDM3fQ.cYCtR76cFG8y1tFu4Xf3NzVY_fBb1hMLXUX3FRc-J5U",
+  "token_type": "bearer",
+  "user": {
+    "id": 4,
+    "name": "esqueci",
+    "email": "user4@example.com",
+    "role": "admin"
+  }
+}
+```
+Esse "access_token" deve ser injetado ao header ou simplesmente passado uma vez que está autenticado.
