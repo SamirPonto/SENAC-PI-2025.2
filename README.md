@@ -28,7 +28,7 @@ Etapas de execução (caso queira visualizar)
 
 ## Fluxo de alimentação
 O banco de dados sobe limpo, então precisamos inserir os primeiros dados dentro dele.  
-No backend há o arquivo de popular com os schemas e tabelas de início.
+No backend há o arquivo `run_db.py` de popular com os schemas e tabelas de início e, após a criação das tabelas, há o arquivo em `backend/scripts/sample_data.sql` com a inserção de alguns metadados.
 
 ### Criando primeiro usuário
 Ao subir o banco e a api de backend, é possível acessar o swagger da api e criar o usuário teste.  
