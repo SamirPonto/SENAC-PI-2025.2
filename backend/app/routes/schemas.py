@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 from app.db.models.auth.user import UserRole
 
@@ -12,6 +12,8 @@ class Module(BaseModel):
     module_order: int
     created_at: datetime
     content_url: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Progress(BaseModel):

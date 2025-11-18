@@ -5,6 +5,7 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     TIMESTAMP,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -16,7 +17,6 @@ from app.db.base import Base
 
 class Progress(Base):
     __tablename__ = "progress"
-    __table_args__ = {"schema": "learn"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("auth.user.id", ondelete="CASCADE"))
@@ -25,6 +25,7 @@ class Progress(Base):
     )
     percentage: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
+    __table_args__ = (UniqueConstraint(id, user_id), {"schema": "learn"})
 
     # user: Mapped["User"] = relationship("User", back_populates="progress")
     # module: Mapped["Module"] = relationship("Module", back_populates="progress")
