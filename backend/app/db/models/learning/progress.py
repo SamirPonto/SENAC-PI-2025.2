@@ -16,12 +16,12 @@ from app.db.base import Base
 
 class Progress(Base):
     __tablename__ = "progress"
-    __table_args__ = {"schema": "learning"}
+    __table_args__ = {"schema": "learn"}
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("auth.user.id", ondelete="CASCADE"))
     module_id: Mapped[int] = mapped_column(
-        ForeignKey("learning.modules.id", ondelete="CASCADE")
+        ForeignKey("learn.module.id", ondelete="CASCADE")
     )
     percentage: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)

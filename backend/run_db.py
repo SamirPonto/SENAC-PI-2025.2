@@ -11,4 +11,4 @@ with engine.connect() as conn:
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema};"))
     conn.commit()
 
-Base.metadata.create_all(engine)
+    Base.metadata.create_all(conn)
