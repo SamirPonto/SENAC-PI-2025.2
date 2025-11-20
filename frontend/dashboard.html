@@ -1,30 +1,689 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
-  <meta charset="utf-8">
-  <title>EducaFlex — Trilhas</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EducaFlex - Dashboard</title>
+
+    <!-- Inclui Tailwind CSS para estilização rápida -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="module">
+
+        // Importa módulos Firebase (versão 11.6.1 é compatível com o ambiente Canvas)
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        import { getFirestore, setDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+       
+
+        // Define o nível de log do Firestore para Debug (opcional, mas útil)
+
+        setLogLevel('Debug');
+
+
+
+        // Variáveis globais (fornecidas pelo ambiente Canvas, mas com fallback)
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+
+
+        let db;
+
+        let auth;
+
+        let userId = null;
+
+        let isAuthReady = false;
+
+
+
+        /**
+
+         * Inicializa o Firebase e realiza a autenticação inicial.
+
+         */
+
+        async function initializeFirebase() {
+
+            try {
+
+                if (Object.keys(firebaseConfig).length === 0) {
+
+                    console.error("Firebase Config not found. Cannot initialize Firebase.");
+
+                    return;
+
+                }
+
+               
+
+                const app = initializeApp(firebaseConfig);
+
+                db = getFirestore(app);
+
+                auth = getAuth(app);
+
+
+
+                // Autentica com token customizado (se disponível) ou anonimamente
+
+                if (initialAuthToken) {
+
+                    await signInWithCustomToken(auth, initialAuthToken);
+
+                } else {
+
+                    await signInAnonymously(auth);
+
+                }
+
+
+
+                // Ouve as mudanças de estado de autenticação
+
+                onAuthStateChanged(auth, (user) => {
+
+                    if (user) {
+
+                        userId = user.uid;
+
+                        console.log("Usuário autenticado:", userId);
+
+                        isAuthReady = true;
+
+                        // Chama a função para carregar dados do usuário (a ser implementada)
+
+                        loadUserData(userId);
+
+                        // Atualiza a UI com o User ID
+
+                        document.getElementById('user-id-display').textContent = `ID: ${userId}`;
+
+                        document.getElementById('user-id-display').classList.remove('hidden');
+
+                    } else {
+
+                        console.log("Usuário deslogado ou anônimo.");
+
+                        // Redireciona para o login se não for anônimo (para apps reais)
+
+                        // window.location.href = 'index.html';
+
+                    }
+
+                });
+
+
+
+            } catch (error) {
+
+                console.error("Erro na inicialização do Firebase ou na autenticação:", error);
+
+            }
+
+        }
+
+
+
+        /**
+
+         * Simula o carregamento dos dados do usuário (professor/estudante).
+
+         */
+
+        function loadUserData(currentUserId) {
+
+            if (!db || !currentUserId) return;
+
+           
+
+            // Define o caminho para o documento do usuário (Dados Privados)
+
+            const userDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/profile`);
+
+
+
+            // Ouve em tempo real as mudanças no perfil do usuário
+
+            onSnapshot(userDocRef, (docSnap) => {
+
+                if (docSnap.exists()) {
+
+                    const userData = docSnap.data();
+
+                    // Atualiza a interface com o nome e o tipo de usuário
+
+                    document.getElementById('username-display').textContent = userData.nome || 'Usuário EducaFlex';
+
+                    document.getElementById('user-role-display').textContent = userData.tipo || 'Função Não Definida';
+
+                } else {
+
+                    console.log("Documento de perfil não encontrado. Criando mock de dados...");
+
+                    // Se não existir, cria um perfil inicial (MOCK)
+
+                    setDoc(userDocRef, {
+
+                        nome: 'Laura de Oliveira (MOCK)',
+
+                        email: 'laura@educaflex.com',
+
+                        tipo: 'Estudante',
+
+                        last_login: new Date().toISOString()
+
+                    }).then(() => console.log("Perfil inicial criado."));
+
+                }
+
+            }, (error) => {
+
+                console.error("Erro ao carregar dados do usuário:", error);
+
+            });
+
+        }
+
+       
+
+        // Chamada de inicialização
+
+        initializeFirebase();
+
+
+
+
+
+        // Função de Logout (Simulação)
+
+        window.logout = function() {
+
+            // Em um ambiente real, você faria auth.signOut()
+
+            // Aqui, apenas redirecionamos para o login (Tela de Saída)
+
+            alertUser('Saindo da plataforma...', 'success');
+
+            setTimeout(() => {
+
+                window.location.href = 'index.html';
+
+            }, 1000);
+
+        };
+
+
+
+
+
+        // Função para substituir o alert() nativo com um toast/modal customizado
+
+        function alertUser(message, type) {
+
+            const existingAlert = document.getElementById('custom-alert');
+
+            if (existingAlert) { existingAlert.remove(); }
+
+
+
+            const alertDiv = document.createElement('div');
+
+            alertDiv.id = 'custom-alert';
+
+           
+
+            let bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-600';
+
+           
+
+            alertDiv.className = `fixed top-5 right-5 z-50 p-4 rounded-lg shadow-xl text-white font-semibold transition-opacity duration-300 ${bgColor}`;
+
+            alertDiv.innerHTML = `<p>${message}</p>`;
+
+
+
+            document.body.appendChild(alertDiv);
+
+
+
+            setTimeout(() => {
+
+                alertDiv.style.opacity = '0';
+
+                setTimeout(() => alertDiv.remove(), 300);
+
+            }, 3000);
+
+        }
+
+
+
+    </script>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+            margin: 0;
+
+            padding: 0;
+
+            background-color: #111827; /* Cor de fundo escura (gray-900) */
+
+            color: #f9fafb; /* Cor do texto claro */
+
+        }
+
+        .sidebar {
+
+            width: 280px;
+
+            background-color: #1f2937; /* gray-800 */
+
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+
+            transition: transform 0.3s ease;
+
+        }
+
+        .nav-item {
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0.75rem 1.5rem;
+
+            margin: 0.25rem 0;
+
+            cursor: pointer;
+
+            border-radius: 0.5rem;
+
+            transition: background-color 0.2s, color 0.2s;
+
+            color: #d1d5db; /* gray-300 */
+
+        }
+
+        .nav-item:hover, .nav-item.active {
+
+            background-color: #3b82f6; /* blue-500 */
+
+            color: white;
+
+            font-weight: 600;
+
+        }
+
+        .card-trilha {
+
+            background-color: #1f2937;
+
+            border-radius: 0.75rem;
+
+            overflow: hidden;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        }
+
+        .card-trilha:hover {
+
+            transform: translateY(-5px);
+
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); /* Sombra azul no hover */
+
+        }
+
+        .progress-bar {
+
+            height: 8px;
+
+            border-radius: 4px;
+
+            background-color: #4b5563; /* gray-600 */
+
+            overflow: hidden;
+
+        }
+
+        .progress-fill {
+
+            height: 100%;
+
+            background-color: #10b981; /* green-500 */
+
+        }
+
+    </style>
+
 </head>
-<body>
-  <div class="container">
-    <div class="header mb-3 d-flex align-items-center justify-content-between">
-      <div class="logo">EducaFlex</div>
-      <div>
-                                <button id="logoutBtn" class="btn btn-sm btn-secondary">Sair</button>
-      </div>
-    </div>
 
-    <h2>Trilhas de Estudo</h2>
-    
-        <div id="trailsList" class="grid">
-          </div>
-    
-    <div class="footer-note mt-2">Clique em "Acessar" para abrir a trilha e ver módulos.</div>
-  </div>
+<body class="flex h-screen overflow-hidden">
 
-<script src="assets/script.js"></script> 
+
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar flex flex-col h-full fixed md:relative z-30">
+
+        <div class="p-6">
+
+            <h1 class="text-3xl font-extrabold text-blue-400">EducaFlex</h1>
+
+        </div>
+
+
+
+        <!-- Perfil do Usuário -->
+
+        <div class="px-6 py-4 border-t border-gray-700/50">
+
+            <div class="flex items-center space-x-3">
+
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+
+                    L
+
+                </div>
+
+                <div>
+
+                    <p id="username-display" class="text-sm font-semibold truncate max-w-[150px]">Carregando...</p>
+
+                    <p id="user-role-display" class="text-xs text-gray-400">Tipo de Usuário</p>
+
+                    <p id="user-id-display" class="text-[0.6rem] text-gray-500 mt-1 hidden"></p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Navegação Principal -->
+
+        <nav class="flex-grow p-4 space-y-1">
+
+            <a class="nav-item active">
+
+                <!-- Icone Home/Trilhas (lucide-react icon: LayoutDashboard) -->
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="17" rx="1"/></svg>
+
+                Trilhas de Aprendizagem
+
+            </a>
+
+            <a class="nav-item">
+
+                <!-- Icone Progresso (lucide-react icon: TrendingUp) -->
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><polyline points="22 7 13.5 15.5 10 12 2 20"/><polyline points="16 7 22 7 22 13"/></svg>
+
+                Meu Progresso
+
+            </a>
+
+            <a class="nav-item">
+
+                <!-- Icone Forum (lucide-react icon: MessageSquare) -->
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+
+                Fórum de Interação
+
+            </a>
+
+            <!-- Opção extra para Professor (simulação) -->
+
+            <a class="nav-item">
+
+                <!-- Icone Turmas (lucide-react icon: Users) -->
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+
+                Minhas Turmas (Prof.)
+
+            </a>
+
+        </nav>
+
+
+
+        <!-- Botão de Logout -->
+
+        <div class="p-6 border-t border-gray-700/50">
+
+            <button onclick="logout()" class="w-full text-left nav-item !p-2 bg-red-600 hover:bg-red-700 text-white !font-bold rounded-lg">
+
+                <!-- Icone Logout (lucide-react icon: LogOut) -->
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+
+                Sair
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- Conteúdo Principal -->
+
+    <main class="flex-1 overflow-y-auto p-6 md:p-10">
+
+        <header class="mb-8">
+
+            <h2 class="text-4xl font-bold text-gray-100">Bem-vindo(a) de volta!</h2>
+
+            <p class="text-gray-400 mt-1">Sua jornada de aprendizado te espera.</p>
+
+        </header>
+
+
+
+        <!-- Seção de Cartões de Progresso Rápido -->
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+            <!-- Card 1: Horas de Estudo (Meta da Carla) -->
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-blue-500/30">
+
+                <p class="text-sm text-blue-400 font-medium">Meta Semanal (Concursanda)</p>
+
+                <p class="text-3xl font-bold mt-1">8 / 10h</p>
+
+                <div class="progress-bar mt-2">
+
+                    <div class="progress-fill" style="width: 80%;"></div>
+
+                </div>
+
+            </div>
+
+            <!-- Card 2: Módulos Concluídos (Foco do Lucas) -->
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-green-500/30">
+
+                <p class="text-sm text-green-400 font-medium">Módulos Concluídos</p>
+
+                <p class="text-3xl font-bold mt-1">12</p>
+
+                <p class="text-sm text-gray-400">de 45 no total.</p>
+
+            </div>
+
+            <!-- Card 3: Feedback Pendente (Foco da Amanda - Professor) -->
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-yellow-500/30">
+
+                <p class="text-sm text-yellow-400 font-medium">Feedback Pendente (Professor)</p>
+
+                <p class="text-3xl font-bold mt-1">4</p>
+
+                <p class="text-sm text-gray-400">Respostas no Fórum.</p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Seção de Trilhas de Aprendizagem -->
+
+        <h3 class="text-2xl font-semibold mb-6 border-b border-gray-700 pb-2">Minhas Trilhas Atuais</h3>
+
+       
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+
+
+            <!-- Trilha 1: Desenvolvimento Web (Exemplo Lucas) -->
+
+            <div class="card-trilha">
+
+                <div class="p-4 bg-blue-600/20">
+
+                    <h4 class="text-xl font-bold text-blue-300">Desenvolvimento Full Stack</h4>
+
+                    <p class="text-sm text-gray-400">Trilha essencial para TADS/TSI</p>
+
+                </div>
+
+                <div class="p-6">
+
+                    <p class="text-gray-300 mb-3 text-sm">Próximo: Fundamentos de JavaScript (Módulo 3)</p>
+
+                    <div class="progress-bar">
+
+                        <div class="progress-fill bg-blue-500" style="width: 35%;"></div>
+
+                    </div>
+
+                    <p class="text-xs text-gray-400 mt-1">35% Concluído</p>
+
+                    <button class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition duration-200">
+
+                        Continuar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+           
+
+            <!-- Trilha 2: Direito Administrativo (Exemplo Carla) -->
+
+            <div class="card-trilha">
+
+                <div class="p-4 bg-purple-600/20">
+
+                    <h4 class="text-xl font-bold text-purple-300">Direito Administrativo</h4>
+
+                    <p class="text-sm text-gray-400">Foco no Concurso Federal</p>
+
+                </div>
+
+                <div class="p-6">
+
+                    <p class="text-gray-300 mb-3 text-sm">Próximo: Lei 8.666/93 - Licitações (Aula 7)</p>
+
+                    <div class="progress-bar">
+
+                        <div class="progress-fill bg-purple-500" style="width: 80%;"></div>
+
+                    </div>
+
+                    <p class="text-xs text-gray-400 mt-1">80% Concluído</p>
+
+                    <button class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition duration-200">
+
+                        Continuar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Trilha 3: Criação de Conteúdo (Exemplo Professor/Amanda) -->
+
+            <div class="card-trilha">
+
+                <div class="p-4 bg-yellow-600/20">
+
+                    <h4 class="text-xl font-bold text-yellow-300">Gestão de Turmas</h4>
+
+                    <p class="text-sm text-gray-400">Visão do Professor</p>
+
+                </div>
+
+                <div class="p-6">
+
+                    <p class="text-gray-300 mb-3 text-sm">Próximo: Analisar Relatório da Turma B</p>
+
+                    <div class="progress-bar">
+
+                        <div class="progress-fill bg-yellow-500" style="width: 100%;"></div>
+
+                    </div>
+
+                    <p class="text-xs text-gray-400 mt-1">Ação pendente (Não se aplica)</p>
+
+                    <button class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-medium transition duration-200">
+
+                        Acessar Turmas
+
+                    </button>
+
+                </div>
+
+            </div>
+
+           
+
+        </div>
+
+    </main>
+
+
 
 </body>
+
 </html>

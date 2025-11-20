@@ -1,66 +1,239 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>EducaFlex — Registrar</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducaFlex - Cadastro</title>
+    <!-- Inclui Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter como principal */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1f2937; /* Fundo de fallback (cor escura) */
+            color: #333;
+        }
+
+        /* Estilização do Fundo de Imagem (Background Image) */
+        .image-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1; /* Manda a imagem para trás de todo o conteúdo */
+            background-color: #1f2937; 
+        }
+
+        .image-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center; 
+            /* Escurece a imagem para o texto branco se destacar */
+            filter: brightness(0.7); 
+        }
+
+        /* Estilização do Cartão de Cadastro */
+        .register-card {
+            background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente mais escuro */
+            /* EFEITO DE DESFOQUE (BLUR) - ESSENCIAL PARA O VISUAL */
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); /* Suporte para WebKit browsers */
+            border-radius: 1rem;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Estilização dos inputs e selects */
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        input::placeholder {
+            color: #9ca3af; 
+        }
+        select {
+            color: #d1d5db; 
+        }
+        select:invalid {
+            color: #9ca3af; 
+        }
+
+        input:focus, select:focus {
+            border-color: #3b82f6; 
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .label {
+            display: block;
+            color: #d1d5db;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        /* Estilização do botão primário (Cadastrar) - AZUL PADRÃO */
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            transform: translateY(-1px);
+        }
+        
+        /* Estilização do botão secundário (Voltar ao Login) */
+        .btn-secondary {
+            padding: 0.5rem 1rem;
+            border: 1px solid #3b82f6; /* Borda azul */
+            color: #3b82f6; /* Texto azul */
+            background-color: transparent;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease, color 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #3b82f6; /* Fundo azul ao passar o mouse */
+            color: white; /* Texto branco */
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header mb-3">
-      <div class="logo">EducaFlex</div>
-      <div><a href="index.html" class="btn btn-outline-secondary">Voltar ao Login</a></div>
+<body class="flex items-center justify-center min-h-screen py-10">
+
+    <!-- Fundo de Imagem -->
+    <div class="image-background">
+        <!-- Caminho relativo da sua imagem de fundo. Se o arquivo educaflex_background.png estiver
+             em C:\xampp\htdocs\educaflex-poc\frontend\assets\images, este caminho está CORRETO. -->
+        <img src="./assets/images/educaflex_background.png" 
+             alt="Fundo de Pessoas Estudando" 
+             onerror="this.onerror=null; this.src='https://placehold.co/1920x1080/1f2937/ffffff?text=EducaFlex+Background'">
+    </div>
+    
+    <!-- Cartão de Cadastro -->
+    <div class="register-card text-white">
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-400">EducaFlex</h1>
+            <!-- Botão "Voltar ao Login" usando o estilo secundário (azul) -->
+            <button onclick="window.location.href='index.html'" class="btn-secondary text-sm">
+                Voltar ao Login
+            </button>
+        </div>
+
+        <h2 class="text-2xl font-semibold mb-6 text-gray-200">Criar Nova Conta</h2>
+
+        <form>
+            
+            <!-- Nome Completo -->
+            <label for="nome" class="label">Nome Completo</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required>
+
+            <!-- Email -->
+            <label for="email" class="label">Email</label>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+
+            <!-- Tipo de Usuário (Professor/Concursanda/Estudante) -->
+            <label for="tipo_usuario" class="label">Eu sou...</label>
+            <select id="tipo_usuario" name="tipo_usuario" required class="bg-gray-700">
+                <option value="" disabled selected>Selecione seu papel na plataforma</option>
+                <option value="estudante">Estudante de Curso Técnico/Superior</option>
+                <option value="concursando">Concursando(a)</option>
+                <option value="professor">Professor(a)/Instrutor(a)</option>
+            </select>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Senha -->
+                <div>
+                    <label for="senha" class="label">Criar Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Mínimo 8 caracteres" minlength="8" required>
+                </div>
+                <!-- Confirmação de Senha -->
+                <div>
+                    <label for="confirmar_senha" class="label">Confirmar Senha</label>
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Repita a senha" required>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <!-- Botão "Cadastrar" usando o estilo primário (azul) -->
+                <button type="submit" class="btn-primary">
+                    Cadastrar
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center text-xs text-gray-400 mt-4">
+            Ao se cadastrar, você concorda com os <a href="#" class="text-blue-400 hover:underline">Termos de Uso</a> do EducaFlex.
+        </p>
     </div>
 
-    <h2>Criar Conta</h2>
-    <div class="card p-3">
-      <div id="msg" class="small text-danger mb-2"></div>
-      <label class="form-label">Nome</label>
-      <input id="name" type="text" class="form-control mb-2">
-      <label class="form-label">Email</label>
-      <input id="email" type="email" class="form-control mb-2">
-      <label class="form-label">Senha</label>
-      <input id="password" type="password" class="form-control mb-2">
-      <label class="form-label">Confirmar Senha</label>
-      <input id="password2" type="password" class="form-control mb-2">
-      <div class="mt-2">
-        <button id="btnRegister" class="btn btn-primary">Registrar</button>
-      </div>
-    </div>
-  </div>
+    <script>
+        // Função para substituir o alert() nativo com um toast/modal customizado
+        function alertUser(message, type) {
+            const existingAlert = document.getElementById('custom-alert');
+            if (existingAlert) { existingAlert.remove(); }
 
-<script>
-const base = '/educaflex/backend';
-document.getElementById('btnRegister').addEventListener('click', async () => {
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const password2 = document.getElementById('password2').value;
-  const msg = document.getElementById('msg');
-  msg.textContent = '';
-  if (!name || !email || !password) { msg.textContent = 'Preencha todos os campos.'; return; }
-  if (password !== password2) { msg.textContent = 'Senhas não conferem.'; return; }
-  try {
-    const res = await fetch(base + '/auth/register.php', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({name,email,password})
-    });
-    const data = await res.json();
-    if (data.success) {
-      msg.classList.remove('text-danger');
-      msg.classList.add('text-success');
-      msg.textContent = 'Cadastro realizado com sucesso! Redirecionando para login...';
-      setTimeout(()=>window.location.href='index.html',1200);
-    } else {
-      msg.textContent = data.error || 'Erro ao registrar';
-    }
-  } catch (e) {
-    msg.textContent = 'Erro de conexão';
-  }
-});
-</script>
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'custom-alert';
+            
+            let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+            
+            alertDiv.className = `fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white font-semibold transition-opacity duration-300 ${bgColor}`;
+            alertDiv.innerHTML = `<p>${message}</p>`;
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+        
+        // Lógica de Validação e Simulação de Envio
+        const form = document.querySelector('form');
+        const password = document.getElementById('senha');
+        const confirmPassword = document.getElementById('confirmar_senha');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (password.value !== confirmPassword.value) {
+                alertUser('As senhas não coincidem. Por favor, verifique.', 'error');
+                confirmPassword.focus();
+                return;
+            }
+
+            // Simulação de cadastro bem-sucedido
+            alertUser('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
+            
+            // Redireciona para a tela de login após 2 segundos
+            setTimeout(() => {
+                 window.location.href = 'index.html';
+            }, 2000);
+        });
+    </script>
 </body>
 </html>

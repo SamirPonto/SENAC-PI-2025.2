@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>EducaFlex — Login</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Estilos personalizados para o fundo usando a imagem */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('assets/images/educaflex_background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #f8f9fa; /* Cor de fallback */
+            position: relative; /* Para o overlay */
+        }
+        /* Overlay semi-transparente para melhor legibilidade */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 100, 0.75); /* Azul escuro semi-transparente */
+            z-index: -1;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Branco semi-transparente */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            position: relative; /* Garante que o conteúdo fique acima do overlay */
+            z-index: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0d6efd; /* Azul Bootstrap */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header mb-3">
+            <div class="logo">EducaFlex</div>
+            <!-- Link para a tela de registro (caminho relativo) --><div><a href="register.html" class="btn btn-primary">Criar Conta</a></div>
+        </div>
+
+        <h2>Login</h2>
+        
+        <!-- ELEMENTO CHAVE: A tag <form> permite que a tecla ENTER funcione --><form id="loginForm" class="card p-3">
+            <div id="msg" class="small text-danger mb-2"></div>
+            
+            <label for="email" class="form-label">Email</label>
+            <input id="email" type="email" class="form-control mb-2" required>
+            
+            <label for="password" class="form-label">Senha</label>
+            <input id="password" type="password" class="form-control mb-2" required>
+            
+            <div class="mt-2">
+                <!-- type="submit" garante que o form.submit seja acionado pelo Enter --><button type="submit" id="btnLogin" class="btn btn-primary">Entrar</button>
+            </div>
+        </form>
+        
+        <div class="footer-note mt-2 text-center small text-muted">
+            Caso não possua conta, clique em <a href="register.html">Criar Conta.</a>
+        </div>
+        <div class="mt-3 text-center small text-info" id="devNote">
+            Modo de Desenvolvimento: Use email: **aluno@teste.com** e senha: **senha123**.
+        </div>
+    </div>
+
+<script>
+// Variável com o caminho base correto: /educaflex-poc/frontend
+const BASE_PATH = '/educaflex-poc/frontend'; 
+
+// USUÁRIO DE TESTE para a simulação de sucesso
+const TEST_EMAIL = 'aluno@teste.com';
+const TEST_PASSWORD = 'senha123';
+
+const loginForm = document.getElementById('loginForm');
+const btnLogin = document.getElementById('btnLogin');
+const passwordInput = document.getElementById('password'); // Para o listener de Enter
+
+// Função principal de login
+const handleLogin = async (event) => {
+    // ESSENCIAL: Impede que o navegador recarregue a página, se o evento for de formulário.
+    if (event && event.preventDefault) { 
+        event.preventDefault(); 
+    }
+    
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const msg = document.getElementById('msg');
+    msg.textContent = '';
+    
+    if (!email || !password) {
+        msg.textContent = 'Preencha email e senha.';
+        return;
+    }
+    
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Verificando...';
+
+    // Simula tempo de rede para dar feedback ao usuário
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+
+    // LÓGICA DE SIMULAÇÃO (Substitui a chamada ao backend)
+    if (email === TEST_EMAIL && password === TEST_PASSWORD) {
+        // SIMULAÇÃO DE SUCESSO (Rota OK)
+        msg.textContent = 'Login bem-sucedido (Simulado)! Redirecionando...';
+        msg.classList.remove('text-danger');
+        msg.classList.add('text-success');
+        
+        // Redireciona para o Dashboard
+        setTimeout(() => {
+            window.location.href = BASE_PATH + '/dashboard.html';
+        }, 1000);
+        
+    } else {
+        // SIMULAÇÃO DE FALHA (Rota Erro)
+        msg.textContent = 'Email ou senha inválidos. (Simulado)';
+        msg.classList.remove('text-success');
+        msg.classList.add('text-danger');
+    }
+
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'Entrar';
+};
+
+// MÉTODO 1: Listener que captura o submit do formulário (acionado por Enter ou clique no botão)
+loginForm.addEventListener('submit', handleLogin);
+
+// MÉTODO 2 (Força o Enter): Listener que captura a tecla 'Enter' no campo de senha
+passwordInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+        event.preventDefault(); // Impede o envio padrão do formulário
+        handleLogin(); // Chama a função de login diretamente
+    }
+});
+</script>
+</body>
+</html>

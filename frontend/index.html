@@ -1,57 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>EducaFlex — Login</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducaFlex - Login</title>
+    <!-- Inclui Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter como principal */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            /* A cor do fundo (fallback) precisa ser escura para o texto branco funcionar */
+            background-color: #1f2937; 
+            color: #333; 
+        }
+
+        /* Estilização do Fundo de Vídeo */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1; /* Manda o vídeo para trás de todo o conteúdo */
+            background-color: #1f2937; /* Cor de fallback escura (cinza/azul) */
+        }
+
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            /* PONTO FOCAL CORRIGIDO: Move o vídeo 75% para cima */
+            object-position: 50% -75%;
+        }
+
+        /* Estilização do Cartão de Login */
+        .login-card {
+            background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente mais escuro */
+            backdrop-filter: blur(12px); /* Efeito de desfoque moderno mais forte */
+            border-radius: 1rem;
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Estilização dos inputs e botões para consistência */
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.15); /* Fundo do input mais opaco */
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #3b82f6; /* Azul de foco */
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .label {
+            display: block;
+            color: #d1d5db; 
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        /* Estilização do botão primário (Entrar) */
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #3b82f6; 
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb; 
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header mb-3">
-      <div class="logo">EducaFlex</div>
-      <div><a href="register.html" class="btn btn-outline-secondary">Criar Conta</a></div>
-    </div>
+<body class="flex items-center justify-center min-h-screen">
 
-    <h2>Login</h2>
-    <div class="card p-3">
-      <div id="msg" class="small text-danger mb-2"></div>
-      <label class="form-label">Email</label>
-      <input id="email" type="email" class="form-control mb-2">
-      <label class="form-label">Senha</label>
-      <input id="password" type="password" class="form-control mb-2">
-      <div class="mt-2">
-        <button id="btnLogin" class="btn btn-primary">Entrar</button>
-      </div>
-    </div>
-    <div class="footer-note mt-2">Caso não possua conta, clique em Criar Conta.</div>
-  </div>
+    <!-- Fundo de Vídeo -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline poster="https://placehold.co/1920x1080/1f2937/ffffff?text=EducaFlex+Background">
+            <!-- CAMINHO CORRIGIDO: Usando o caminho exato para o seu arquivo local -->
+            <source src="./assets/images/educaflex_background.mp4" type="video/mp4">
 
-<script>
-const base = '/educaflex/backend';
-document.getElementById('btnLogin').addEventListener('click', async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const msg = document.getElementById('msg');
-  msg.textContent = '';
-  if (!email || !password) { msg.textContent = 'Preencha email e senha.'; return; }
-  try {
-    const res = await fetch(base + '/auth/login.php', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email,password})
-    });
-    const data = await res.json();
-    if (data.success) {
-      window.location.href = '/educaflex/frontend/dashboard.html';
-    } else {
-      msg.textContent = data.error || 'Erro ao logar';
-    }
-  } catch (e) {
-    msg.textContent = 'Erro de conexão';
-  }
-});
-</script>
+            Seu navegador não suporta a tag de vídeo.
+        </video>
+    </div>
+    
+    <!-- Cartão de Login -->
+    <div class="login-card text-white">
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-400">EducaFlex</h1>
+            <button onclick="window.location.href='register.html'" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition duration-300">
+                Criar Conta
+            </button>
+        </div>
+
+        <h2 class="text-2xl font-semibold mb-6 text-gray-200">Login</h2>
+
+        <form action="./dashboard.html" method="GET">
+            <label for="email" class="label">Email</label>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+
+            <label for="senha" class="label">Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="********" required>
+
+            <div class="mt-8">
+                <button type="submit" class="btn-primary">
+                    Entrar
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center text-xs text-gray-400 mt-4">
+            Caso não possua conta, clique em Criar Conta.
+        </p>
+    </div>
 </body>
 </html>
