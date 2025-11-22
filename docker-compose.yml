@@ -10,7 +10,10 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydatabase
     volumes:
-      - /var/lib/postgresql/data   # anonymous volume, not persisted
+      # Se o volume nomeado 'db_data' for usado no final do arquivo,
+      # é melhor usar 'db_data:/var/lib/postgresql/data' aqui.
+      # Se não for, mantenha o volume anônimo ou remova a linha, mas removendo a palavra 'frontend'.
+      - /var/lib/postgresql/data 
     ports:
       - "5432:5432"
 
@@ -32,8 +35,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8080:80"
+      - "3000:80" # CORRIGIDO: Mapeando 3000 no host para 80 no container
 
 volumes:
   db_data:
-
