@@ -1,4 +1,3 @@
-# app/routes/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -29,10 +28,10 @@ def login(
     if not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
 
-    # You can put whatever you want in JWT
+    # Corrigido: Usar .value para garantir que o role é uma string no JWT payload
     token_data = {
         "sub": user.email,
-        "role": user.role.value,  # "admin" / "teacher" / "student"
+        "role": user.role.value,  # CORREÇÃO APLICADA AQUI
         "uid": user.id,
     }
 

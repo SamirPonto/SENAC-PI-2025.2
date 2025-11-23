@@ -68,8 +68,20 @@
             color: #9ca3af; 
         }
         select {
+            /* Torna a cor do texto legível no modo normal */
             color: #d1d5db; 
+            appearance: none; /* Remove seta padrão em alguns navegadores */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0l-4.25-4.25a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
         }
+
+        select option {
+            background-color: #1f2937; /* Fundo para as opções no dropdown */
+            color: white;
+        }
+
         select:invalid {
             color: #9ca3af; 
         }
@@ -119,14 +131,18 @@
             background-color: #3b82f6; /* Fundo azul ao passar o mouse */
             color: white; /* Texto branco */
         }
+
+        /* Estilo para a mensagem de erro/sucesso (toast) */
+        #custom-alert {
+            z-index: 1000;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen py-10">
 
     <!-- Fundo de Imagem -->
     <div class="image-background">
-        <!-- Caminho relativo da sua imagem de fundo. Se o arquivo educaflex_background.png estiver
-             em C:\xampp\htdocs\educaflex-poc\frontend\assets\images, este caminho está CORRETO. -->
+        <!-- Caminho relativo da sua imagem de fundo. -->
         <img src="./assets/images/educaflex_background.png" 
              alt="Fundo de Pessoas Estudando" 
              onerror="this.onerror=null; this.src='https://placehold.co/1920x1080/1f2937/ffffff?text=EducaFlex+Background'">
@@ -145,7 +161,7 @@
 
         <h2 class="text-2xl font-semibold mb-6 text-gray-200">Criar Nova Conta</h2>
 
-        <form>
+        <form id="registerForm">
             
             <!-- Nome Completo -->
             <label for="nome" class="label">Nome Completo</label>
@@ -157,7 +173,8 @@
 
             <!-- Tipo de Usuário (Professor/Concursanda/Estudante) -->
             <label for="tipo_usuario" class="label">Eu sou...</label>
-            <select id="tipo_usuario" name="tipo_usuario" required class="bg-gray-700">
+            <select id="tipo_usuario" name="tipo_usuario" required>
+                <!-- O primeiro option precisa ter 'value=""' para que o 'required' funcione corretamente -->
                 <option value="" disabled selected>Selecione seu papel na plataforma</option>
                 <option value="estudante">Estudante de Curso Técnico/Superior</option>
                 <option value="concursando">Concursando(a)</option>
@@ -191,7 +208,12 @@
     </div>
 
     <script>
-        // Função para substituir o alert() nativo com um toast/modal customizado
+        /**
+         * Função para exibir um Toast (alerta customizado) no canto superior direito.
+         * Substitui o uso do alert() nativo, conforme as boas práticas do Canvas.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} type - 'success' (verde) ou 'error' (vermelho).
+         */
         function alertUser(message, type) {
             const existingAlert = document.getElementById('custom-alert');
             if (existingAlert) { existingAlert.remove(); }
@@ -201,6 +223,7 @@
             
             let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
             
+            // Adiciona classes do Tailwind para o estilo, sombra e posição
             alertDiv.className = `fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white font-semibold transition-opacity duration-300 ${bgColor}`;
             alertDiv.innerHTML = `<p>${message}</p>`;
 
@@ -212,28 +235,55 @@
             }, 3000);
         }
         
-        // Lógica de Validação e Simulação de Envio
-        const form = document.querySelector('form');
-        const password = document.getElementById('senha');
-        const confirmPassword = document.getElementById('confirmar_senha');
+        /**
+         * Função de Simulação de Cadastro. 
+         * No futuro, esta função será substituída pela chamada 'fetch()' à API do Backend.
+         */
+        function handleRegister(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
 
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+            const form = document.getElementById('registerForm');
+            const password = document.getElementById('senha').value;
+            const confirmPassword = document.getElementById('confirmar_senha').value;
+            const tipoUsuario = document.getElementById('tipo_usuario').value;
 
-            if (password.value !== confirmPassword.value) {
+            // 1. Validação de Senhas
+            if (password !== confirmPassword) {
                 alertUser('As senhas não coincidem. Por favor, verifique.', 'error');
-                confirmPassword.focus();
                 return;
             }
 
+            // 2. Validação do Tipo de Usuário (apesar do 'required' no HTML, bom ter no JS)
+            if (!tipoUsuario) {
+                 alertUser('Por favor, selecione seu papel na plataforma.', 'error');
+                 return;
+            }
+
+            // 3. Captura dos dados (Pronto para API)
+            const userData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                tipo_usuario: tipoUsuario,
+                senha: password 
+                // Não enviamos 'confirmar_senha' para a API
+            };
+
+            // LOGICA FUTURA: 
+            // fetch('http://localhost:8000/v1/auth/register', { method: 'POST', body: JSON.stringify(userData), ... })
+
             // Simulação de cadastro bem-sucedido
+            console.log('Dados prontos para envio:', userData);
             alertUser('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
             
             // Redireciona para a tela de login após 2 segundos
             setTimeout(() => {
-                 window.location.href = 'index.html';
+                window.location.href = 'index.html';
             }, 2000);
-        });
+        }
+
+        // Associa a função de envio ao evento 'submit' do formulário
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
     </script>
 </body>
 </html>
