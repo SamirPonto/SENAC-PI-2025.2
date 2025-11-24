@@ -123,19 +123,33 @@
 
         <h2 class="text-2xl font-semibold mb-6 text-gray-200">Login</h2>
 
-        <form action="./dashboard.html" method="GET">
-            <label for="email" class="label">Email</label>
-            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+	<form id="loginForm">
+		    <label for="email" class="label">Email</label>
+		    <input type="email" id="email" name="email" required>
 
-            <label for="senha" class="label">Senha</label>
-            <input type="password" id="senha" name="senha" placeholder="********" required>
+		    <label for="senha" class="label">Senha</label>
+		    <input type="password" id="senha" name="senha" required>
 
-            <div class="mt-8">
-                <button type="submit" class="btn-primary">
-                    Entrar
-                </button>
-            </div>
-        </form>
+		    <button type="submit" class="btn-primary mt-8">Entrar</button>
+		</form>
+
+		<p id="errorMsg" style="color:red; display:none;">Email ou senha incorretos.</p>
+
+	<script src="login.js"></script>
+
+		<!-- <form action="./dashboard.html" method="GET"> -->
+		<!--     <label for="email" class="label">Email</label> -->
+		<!--     <input type="email" id="email" name="email" placeholder="seu@email.com" required> -->
+
+		<!--     <label for="senha" class="label">Senha</label> -->
+		<!--     <input type="password" id="senha" name="senha" placeholder="********" required> -->
+
+		<!--     <div class="mt-8"> --> 
+		<!--         <button type="submit" class="btn-primary"> -->
+		<!--             Entrar -->
+		<!--         </button> -->
+		<!--     </div> -->
+		<!-- </form> -->
 
         <p class="text-center text-xs text-gray-400 mt-4">
             Caso não possua conta, clique em Criar Conta.
