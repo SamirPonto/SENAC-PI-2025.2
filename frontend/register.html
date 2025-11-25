@@ -167,233 +167,48 @@
 
         <h2 class="text-2xl font-semibold mb-6 text-gray-200">Criar Nova Conta</h2>
 
-        <form id="registerForm">
-            
-            <!-- Nome Completo -->
-            <label for="name" class="label">Nome Completo</label>
-            <input type="text" id="name" name="name" placeholder="Seu nome completo" required>
+	<form id="registerForm">
 
-            <!-- Email -->
-            <label for="email" class="label">Email</label>
-            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+	    <!-- Nome Completo -->
+	    <label for="name" class="label">Nome Completo</label>
+	    <input type="text" id="name" name="name" placeholder="Seu nome completo" required>
 
-            <!-- Tipo de Usuário (Professor/Concursanda/Estudante) - O backend atual ignora este campo. -->
-            <label for="tipo_usuario" class="label">Eu sou...</label>
-            <select id="tipo_usuario" name="tipo_usuario" required>
-                <option value="" disabled selected>Selecione seu papel na plataforma</option>
-                <option value="estudante">Estudante de Curso Técnico/Superior</option>
-                <option value="concursando">Concursando(a)</option>
-                <option value="professor">Professor(a)/Instrutor(a)</option>
-            </select>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Senha -->
-                <div>
-                    <label for="password" class="label">Criar Senha</label>
-                    <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" minlength="8" required>
-                </div>
-                <!-- Confirmação de Senha -->
-                <div>
-                    <label for="confirm_password" class="label">Confirmar Senha</label>
-                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita a senha" required>
-                </div>
-            </div>
+	    <!-- Email -->
+	    <label for="email" class="label">Email</label>
+	    <input type="email" id="email" name="email" placeholder="seu@email.com" required>
 
-            <div class="mt-8">
-                <!-- Botão "Cadastrar" usando o estilo primário (azul) -->
-                <button type="submit" id="registerButton" class="btn-primary" disabled>
-                    Cadastrar
-                </button>
-            </div>
-        </form>
+	    <!-- Tipo de Usuário -->
+	    <label for="role" class="label">Eu sou...</label>
+	    <select id="role" name="role" required>
+		<option value="" disabled selected>Selecione seu papel na plataforma</option>
+		<option value="student">Estudante</option>
+		<option value="student">Concursando(a)</option>
+		<option value="teacher">Professor(a)/Instrutor(a)</option>
+	    </select>
 
-        <p class="text-center text-xs text-gray-400 mt-4">
-            Ao se cadastrar, você concorda com os <a href="#" class="text-blue-400 hover:underline">Termos de Uso</a> do EducaFlex.
-        </p>
+	    <div class="grid grid-cols-2 gap-4">
+		<div>
+		    <label for="password" class="label">Criar Senha</label>
+		    <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+		</div>
+
+		<div>
+		    <label for="confirm_password" class="label">Confirmar Senha</label>
+		    <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita a senha" required>
+		</div>
+	    </div> <!-- grid closed correctly! -->
+
+	    <p class="text-center text-xs text-gray-400 mt-4">
+		Ao se cadastrar, você concorda com os
+		<a href="#" class="text-blue-400 hover:underline">Termos de Uso</a>.
+	    </p>
+
+	    <button type="submit" class="btn-primary mt-4">Registrar</button>
+	</form>
+
     </div>
 
-    <script>
-        // Define o endpoint da API de registro.
-        // ATENÇÃO: Se o backend estiver rodando em um servidor diferente, ajuste esta URL.
-        const BASE_URL = 'http://localhost/educaflex-poc/backend/register.php';
+    <script src="register.js"></script>
 
-        const form = document.getElementById('registerForm');
-        // Mapeamento dos inputs
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm_password');
-        const registerButton = document.getElementById('registerButton');
-
-        /**
-         * Função para exibir um Toast (alerta customizado) no canto superior direito.
-         * @param {string} message - A mensagem a ser exibida.
-         * @param {string} type - 'success' (verde) ou 'error' (vermelho).
-         */
-        function alertUser(message, type) {
-            const existingAlert = document.getElementById('custom-alert');
-            if (existingAlert) { existingAlert.remove(); }
-
-            const alertDiv = document.createElement('div');
-            alertDiv.id = 'custom-alert';
-            
-            let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-            
-            // Adiciona classes do Tailwind para o estilo, sombra e posição
-            alertDiv.className = `fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white font-semibold transition-opacity duration-300 ${bgColor}`;
-            alertDiv.innerHTML = `<p>${message}</p>`;
-
-            document.body.appendChild(alertDiv);
-
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
-                setTimeout(() => alertDiv.remove(), 300);
-            }, 3000);
-        }
-
-        // Função de validação de formulário (Client-Side)
-        function validateForm() {
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            const tipoUsuario = document.getElementById('tipo_usuario').value;
-
-            if (!name || !email || !password || !confirmPassword || !tipoUsuario) {
-                 return "Preencha todos os campos e selecione seu papel.";
-            }
-
-            if (password.length < 8) {
-                return "A senha deve ter no mínimo 8 caracteres.";
-            }
-
-            if (password !== confirmPassword) {
-                return "As senhas não coincidem.";
-            }
-            
-            // Validação simples de email (Regex básico)
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return "Formato de e-mail inválido.";
-            }
-
-            return null; // Nenhuma mensagem de erro
-        }
-        
-        // Habilita/Desabilita o botão
-        function checkInputs() {
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            const tipoUsuario = document.getElementById('tipo_usuario').value;
-
-            // O botão só é habilitado se TODOS os campos estiverem preenchidos
-            if (name && email && password && confirmPassword && tipoUsuario) {
-                registerButton.disabled = false;
-            } else {
-                registerButton.disabled = true;
-            }
-        }
-        
-        // Listener de Input para habilitação do botão
-        form.addEventListener('input', checkInputs);
-
-        // Evento de submissão do formulário
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // 1. Validação Client-Side
-            const validationError = validateForm();
-            if (validationError) {
-                alertUser(validationError, 'error');
-                return;
-            }
-
-            // Coleta os dados que a API register.php espera
-            const userData = {
-                name: nameInput.value.trim(),
-                email: emailInput.value.trim(),
-                password: passwordInput.value // Será hasheada no PHP
-                // O campo 'tipo_usuario' não é enviado neste MVP de autenticação
-            };
-
-            registerButton.textContent = 'Cadastrando...';
-            registerButton.disabled = true;
-
-            // Implementação do Exponential Backoff para lidar com falhas de rede
-            const maxRetries = 3;
-            let currentRetry = 0;
-
-            const makeApiCall = async () => {
-                try {
-                    const response = await fetch(BASE_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(userData)
-                    });
-                    
-                    // Verifica se a resposta HTTP é 200/201 (Sucesso)
-                    if (!response.ok) {
-                        // Tenta ler a mensagem de erro do backend, se houver
-                        const errorResult = await response.json();
-                        throw new Error(errorResult.message || `Erro do servidor: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-
-                    // 3. Tratamento da Resposta
-                    if (result.success) {
-                        alertUser("Cadastro realizado com sucesso! Redirecionando para o login...", 'success');
-                        
-                        // Limpar o formulário e redirecionar
-                        form.reset();
-                        
-                        // Redireciona para index.html (página de login) após um pequeno atraso
-                        setTimeout(() => {
-                            window.location.href = 'index.html'; 
-                        }, 2000);
-
-                    } else {
-                        // Mensagem de erro retornada pelo backend (ex: email já existe)
-                        alertUser(result.message || "Erro desconhecido no cadastro.", 'error');
-                    }
-                    
-                    // Retorna para finalizar o processo (sucesso ou falha tratada)
-                    return true;
-
-                } catch (error) {
-                    // Erro de rede ou erro lançado acima
-                    if (currentRetry < maxRetries) {
-                        currentRetry++;
-                        const delay = Math.pow(2, currentRetry) * 1000; // 2s, 4s, 8s
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        // Tenta novamente (retorno para makeApiCall)
-                        return false; 
-                    } else {
-                        // Todos os retries falharam
-                        console.error("Erro final na requisição de cadastro:", error);
-                        alertUser(error.message || "Erro de conexão persistente com o servidor. Tente novamente mais tarde.", 'error');
-                        return true; // Retorna true para sair do loop finally
-                    }
-                }
-            };
-            
-            // Loop de Retry com Exponential Backoff
-            while (true) {
-                const finished = await makeApiCall();
-                if (finished) break;
-            }
-
-            registerButton.textContent = 'Cadastrar';
-            // Reavalia o estado do botão
-            checkInputs(); 
-        });
-        
-        // Garante que o estado inicial do botão esteja correto ao carregar
-        document.addEventListener('DOMContentLoaded', checkInputs);
-    </script>
 </body>
 </html>

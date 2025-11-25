@@ -17,11 +17,9 @@ class Module(BaseModel):
 
 
 class Progress(BaseModel):
-    id: int
     user_id: int
     module_id: int
     percentage: int = Field(ge=0, le=100)
-    updated_at: datetime
 
 
 class Trail(BaseModel):
