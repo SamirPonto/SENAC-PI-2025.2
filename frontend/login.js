@@ -27,10 +27,16 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         const data = await response.json();
 
         // Save JWT token
-        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("access_token", data.access_token);
+	localStorage.setItem("user_data", JSON.stringify(data.user));
 
         // Redirect to dashboard
-        window.location.href = "./dashboard.html";
+        //window.location.href = "./dashboard.html";
+	if (data.role === 'teacher') {
+		window.location.href = "./dashboard_v3.html";
+	} else {
+		window.location.href = "./dashboard_teacher.html";
+	}
     } else {
         document.getElementById("errorMsg").style.display = "block";
     }

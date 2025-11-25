@@ -46,7 +46,9 @@ CREATE TABLE IF NOT EXISTS learn.progress (
     user_id INTEGER NOT NULL REFERENCES auth."user" (id) ON DELETE CASCADE,
     module_id INTEGER NOT NULL REFERENCES learn.module (id) ON DELETE CASCADE,
     percentage INTEGER NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    updated_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT uq_user_module UNIQUE (user_id, module_id)
 );
 
 -- Quiz

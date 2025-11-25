@@ -19,7 +19,7 @@ async def update_progress(
     stmt = (
         insert(Progress)
         .values(
-            user_id=user.id,
+            user_id=data.user_id,
             module_id=data.module_id,
             percentage=data.percentage,
         )

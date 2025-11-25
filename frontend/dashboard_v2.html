@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard v2</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #user-info, #data-section { margin-bottom: 20px; }
+    button { padding: 8px 16px; margin-right: 8px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <div id="user-info">
+    <p><em>Loading user data…</em></p>
+  </div>
+  <div id="data-section" style="display: none;">
+    <h2>Additional Data</h2>
+    <pre id="data-json"></pre>
+  </div>
+  <button id="refresh-btn" style="display: none;">Refresh</button>
+  <button id="logout-btn">Logout</button>
+  <p class="error" id="error-msg" style="display: none;"></p>
+
+  <script>
+    (async function() {
+      const userInfoDiv = document.getElementById('user-info');
+      const dataSection = document.getElementById('data-section');
+      const dataJsonPre = document.getElementById('data-json');
+      const refreshBtn = document.getElementById('refresh-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const errorMsg = document.getElementById('error-msg');
+
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        userInfoDiv.innerHTML = '<p>No token found. Please log in.</p>';
+        return;
+      }
+
+      async function fetchUser() {
+          // Try fetching the user profile
+		    const user = JSON.parse(localStorage.getItem('user_data'));
+			    console.log(user);
+	  userInfoDiv.innerHTML = `
+	    <p><strong>ID:</strong> ${user.id}</p>
+	    <p><strong>Name:</strong> ${user.name}</p>
+	    <p><strong>Email:</strong> ${user.email}</p>
+	    <p><strong>Role:</strong> ${user.role}</p>
+	  `;
+
+	  return user;
+      }
+
+        await fetchUser();
+
+      //refreshBtn.addEventListener('click', async () => {
+      //  dataJsonPre.textContent = 'Refreshing...';
+      //  await fetchOtherData();
+      //});
+
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('access_token');
+        window.location.href = 'index.html';
+      });
+    })();
+  </script>
+</body>
+</html>
+
